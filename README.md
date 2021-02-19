@@ -12,15 +12,15 @@ Here is how to install apis-web individually.
 git, maven, groovy and JDK must be installed in advance.
 
 ```bash
-$ git clone https://github.com/SonyCSL/apis-bom.git
+$ git clone https://github.com/hyphae/apis-bom.git
 $ cd apis-bom
 $ mvn install
 $ cd ../
-$ git clone https://github.com/SonyCSL/apis-common.git
+$ git clone https://github.com/hyphae/apis-common.git
 $ cd apis-common
 $ mvn install
 $ cd ../
-$ git cone https://github.com/SonyCSL/apis-web.git
+$ git cone https://github.com/hyphae/apis-web.git
 $ cd apis-web
 $ mvn package
 ```
@@ -62,8 +62,8 @@ Refer to "Chapter 7, About Configuration Files" in the [apis-web_specification](
 
 <a id="anchor1"></a>
 ## Documentation
-&emsp;[apis-web_specification(EN)](https://github.com/SonyCSL/apis-web/blob/master/doc/en/apis-web_specification_en.md)  
-&emsp;[apis-web_specification(JP)](https://github.com/SonyCSL/apis-web/blob/master/doc/jp/apis-web_specification.md)
+&emsp;[apis-web_specification(EN)](https://github.com/hyphae/apis-web/blob/master/doc/en/apis-web_specification_en.md)  
+&emsp;[apis-web_specification(JP)](https://github.com/hyphae/apis-web/blob/master/doc/jp/apis-web_specification.md)
 
 ## API Specification  
 
@@ -80,8 +80,8 @@ The API specification is created in apis-web/target/site/apidocs/.
 
 
 ## License
-&emsp;[Apache License Version 2.0](https://github.com/SonyCSL/apis-web/blob/master/LICENSE)
+&emsp;[Apache License Version 2.0](https://github.com/hyphae/apis-web/blob/master/LICENSE)
 
 
 ## Notice
-&emsp;[Notice](https://github.com/SonyCSL/apis-web/blob/master/NOTICE.md)
+&emsp;[Notice](https://github.com/hyphae/apis-web/blob/master/NOTICE.md)
