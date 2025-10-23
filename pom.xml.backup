@@ -3,7 +3,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>11</maven.compiler.release>
   </properties>
 
   <groupId>jp.co.sony.csl.dcoes.apis</groupId>
@@ -53,31 +52,27 @@
   <build>
     <pluginManagement>
       <plugins>
+        <!-- We specify the Maven compiler plugin as we need to set it to Java 1.8 -->
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.11.0</version>
+          <version>3.1</version>
           <configuration>
-            <release>11</release>
-            <encoding>UTF-8</encoding>
+            <source>1.8</source>
+            <target>1.8</target>
           </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
-    
+    <!--
+    You only need the part below if you want to build your application into a fat executable jar.
+    This is a jar that contains all the dependencies required to run it, so you can just run it with
+    java -jar
+    -->
     <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
-        <configuration>
-          <release>11</release>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.4.1</version>
+        <version>2.3</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -87,30 +82,33 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>jp.co.sony.csl.dcoes.apis.common.util.vertx.ApisLauncher</mainClass>
+                  <manifestEntries>
+                    <!--Main-Class>io.vertx.core.Launcher</Main-Class-->
+                    <Main-Class>jp.co.sony.csl.dcoes.apis.common.util.vertx.ApisLauncher</Main-Class>
+                    <Main-Verticle>jp.co.sony.csl.dcoes.apis.tools.web.util.Starter</Main-Verticle>
+                  </manifestEntries>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>META-INF/services/io.vertx.core.spi.VerticleFactory</resource>
                 </transformer>
               </transformers>
+              <artifactSet>
+              </artifactSet>
               <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</outputFile>
             </configuration>
           </execution>
         </executions>
       </plugin>
-
-      <!-- Other plugins remain the same -->
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>3.1.0</version>
         <executions>
           <execution>
             <phase>package</phase>
             <configuration>
-              <target>
+              <tasks>
                 <property name="version" value="${project.version}" />
                 <ant antfile="build.xml" target="md5" />
-              </target>
+              </tasks>
             </configuration>
             <goals>
               <goal>run</goal>
@@ -118,10 +116,8 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.6.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -137,6 +133,20 @@
           </descriptors>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.3.1</version>
+        <configuration>
+          <author>true</author>
+          <source>1.8</source>
+          <show>private</show>
+          <encoding>UTF-8</encoding>
+          <charset>UTF-8</charset>
+          <docencoding>UTF-8</docencoding>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+
 </project>
