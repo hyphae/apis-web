@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
@@ -59,6 +60,8 @@
           <configuration>
             <release>11</release>
             <encoding>UTF-8</encoding>
+            <showWarnings>false</showWarnings>
+            <showDeprecation>false</showDeprecation>
           </configuration>
         </plugin>
       </plugins>
@@ -71,6 +74,8 @@
         <configuration>
           <release>11</release>
           <encoding>UTF-8</encoding>
+          <showWarnings>false</showWarnings>
+          <showDeprecation>false</showDeprecation>
         </configuration>
       </plugin>
 
@@ -94,13 +99,29 @@
                 </transformer>
               </transformers>
               <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</outputFile>
+              <!-- Keep filters for warning suppression but REMOVE minimization -->
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/LICENSE</exclude>
+                    <exclude>META-INF/NOTICE</exclude>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>META-INF/io.netty.versions.properties</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+              <!-- MINIMIZATION REMOVED - it was deleting essential classes -->
             </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <!-- Other plugins remain the same -->
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>3.1.0</version>
         <executions>
@@ -120,6 +141,7 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>3.6.0</version>
         <executions>
