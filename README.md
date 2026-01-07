@@ -1,5 +1,6 @@
 # apis-web
-
+![OpenSSF Scorecard](https://www.bestpractices.dev/projects/9993/badge)
+![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/hyphae/apis-common/badge)
 ## Introduction
 apis-web is a software program that provides power interchange-related information to Web services (such as a visualization service) for the development, operation, and maintenance of power interchange. To get information from apis-main installed in multiple nodes connected on a communication lines such as Ethernet, apis-web forms a cluster by using Vert.x and Hazelcast framework functions. From Grid Master in the cluster, it gets hardware information such as the DC/DC converter and battery RSoC information of all nodes and power interchange information from any node. apis-web also has functions to generate power interchange and errors for debugging purposes.
 
