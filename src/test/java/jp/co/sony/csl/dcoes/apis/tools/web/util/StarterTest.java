@@ -1,8 +1,16 @@
+package jp.co.sony.csl.dcoes.apis.tools.web.util;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.EventBus;
+import jp.co.sony.csl.dcoes.apis.tools.web.ApiServer;
+import jp.co.sony.csl.dcoes.apis.tools.web.BudoEmulator;
+import jp.co.sony.csl.dcoes.apis.tools.web.EmulatorEmulator;
+import jp.co.sony.csl.dcoes.apis.tools.web.deprecated.DealGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -42,34 +50,32 @@ public class StarterTest {
         Future<Void> futureApiServer = Future.succeededFuture();
         Future<Void> futureDealGenerator = Future.succeededFuture();
 
-        when(vertx.deployVerticle(Mockito.any(Verticle.class), any(Handler.class)))
-                .thenAnswer(invocation -> {
-                    Handler<AsyncResult<String>> handler = invocation.getArgument(1);
-                    handler.handle(Future.succeededFuture("verticle_id"));
-                    return null;
-                });
+        doAnswer(invocation -> {
+            Handler<AsyncResult<String>> handler = invocation.getArgument(1);
+            handler.handle(Future.succeededFuture("verticle_id"));
+            return null;
+        }).when(vertx).deployVerticle(Mockito.any(Verticle.class), any(Handler.class));
 
         starter.doStart(result -> {
             completionHandlerCaptor.capture();
             completionHandlerCaptor.getValue().handle(Future.succeededFuture());
         });
 
-        verify(vertx).deployVerticle(Mockito.any(EmulatorEmulator.class), any());
-        verify(vertx).deployVerticle(Mockito.any(BudoEmulator.class), any());
-        verify(vertx).deployVerticle(Mockito.any(ApiServer.class), any());
-        verify(vertx).deployVerticle(Mockito.any(DealGenerator.class), any());
+        verify(vertx).deployVerticle(Mockito.any(EmulatorEmulator.class), any(Handler.class));
+        verify(vertx).deployVerticle(Mockito.any(BudoEmulator.class), any(Handler.class));
+        verify(vertx).deployVerticle(Mockito.any(ApiServer.class), any(Handler.class));
+        verify(vertx).deployVerticle(Mockito.any(DealGenerator.class), any(Handler.class));
 
         verify(completionHandlerCaptor.getValue()).handle(Future.succeededFuture());
     }
 
     @Test
     public void testStart_ShouldFailOnVerticleDeployment() {
-        when(vertx.deployVerticle(Mockito.any(EmulatorEmulator.class), any()))
-                .thenAnswer(invocation -> {
-                    Handler<AsyncResult<String>> handler = invocation.getArgument(1);
-                    handler.handle(Future.failedFuture("Deployment failed"));
-                    return null;
-                });
+        doAnswer(invocation -> {
+            Handler<AsyncResult<String>> handler = invocation.getArgument(1);
+            handler.handle(Future.failedFuture("Deployment failed"));
+            return null;
+        }).when(vertx).deployVerticle(Mockito.any(Verticle.class), any(Handler.class));
 
         starter.doStart(result -> {
             completionHandlerCaptor.capture();
@@ -81,33 +87,11 @@ public class StarterTest {
 
     @Test
     public void testStart_ShouldCallCompletionHandlerOnSuccess() {
-        when(vertx.deployVerticle(Mockito.any(EmulatorEmulator.class), any()))
-                .thenAnswer(invocation -> {
-                    Handler<AsyncResult<String>> handler = invocation.getArgument(1);
-                    handler.handle(Future.succeededFuture("verticle_id"));
-                    return null;
-                });
-
-        when(vertx.deployVerticle(Mockito.any(BudoEmulator.class), any()))
-                .thenAnswer(invocation -> {
-                    Handler<AsyncResult<String>> handler = invocation.getArgument(1);
-                    handler.handle(Future.succeededFuture("verticle_id"));
-                    return null;
-                });
-
-        when(vertx.deployVerticle(Mockito.any(ApiServer.class), any()))
-                .thenAnswer(invocation -> {
-                    Handler<AsyncResult<String>> handler = invocation.getArgument(1);
-                    handler.handle(Future.succeededFuture("verticle_id"));
-                    return null;
-                });
-
-        when(vertx.deployVerticle(Mockito.any(DealGenerator.class), any()))
-                .thenAnswer(invocation -> {
-                    Handler<AsyncResult<String>> handler = invocation.getArgument(1);
-                    handler.handle(Future.succeededFuture("verticle_id"));
-                    return null;
-                });
+        doAnswer(invocation -> {
+            Handler<AsyncResult<String>> handler = invocation.getArgument(1);
+            handler.handle(Future.succeededFuture("verticle_id"));
+            return null;
+        }).when(vertx).deployVerticle(Mockito.any(Verticle.class), any(Handler.class));
 
         starter.doStart(result -> {
             completionHandlerCaptor.capture();

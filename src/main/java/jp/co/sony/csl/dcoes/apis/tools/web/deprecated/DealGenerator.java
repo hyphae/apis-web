@@ -4,28 +4,34 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.Promise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jp.co.sony.csl.dcoes.apis.common.util.vertx.VertxConfig;
 import jp.co.sony.csl.dcoes.apis.tools.web.api_handler.DealGeneration;
 
 /**
-
-
- * This Verticle provides Web API to deliver Power Sharing information from the outside. 
- * {@code @Deprecated} because this is already provided as {@link jp.co.sony.csl.dcoes.apis.tools.web.ApiServer.ApiHandler}.
+ * 
+ * 
+ * This Verticle provides Web API to deliver Power Sharing information from the
+ * outside.
+ * {@code @Deprecated} because this is already provided as
+ * {@link jp.co.sony.csl.dcoes.apis.tools.web.ApiServer.ApiHandler}.
  * Processing has already migrated to {@link DealGeneration}.
  * The following API is provided.
  * - /deal : Delivers Power Sharing
+ * 
  * @author OES Project
- * 外部から融通情報を投入するための Web API を提供する Verticle.
- * すでに {@link jp.co.sony.csl.dcoes.apis.tools.web.ApiServer.ApiHandler} として提供しているため {@code @Deprecated}.
- * 処理は {@link DealGeneration} に移譲ずみ.
- * 以下の API を提供する.
- * - /deal : 融通を投入する
+ *         外部から融通情報を投入するための Web API を提供する Verticle.
+ *         すでに {@link jp.co.sony.csl.dcoes.apis.tools.web.ApiServer.ApiHandler}
+ *         として提供しているため {@code @Deprecated}.
+ *         処理は {@link DealGeneration} に移譲ずみ.
+ *         以下の API を提供する.
+ *         - /deal : 融通を投入する
  * @author OES Project
  */
-@Deprecated public class DealGenerator extends AbstractVerticle {
+@Deprecated
+public class DealGenerator extends AbstractVerticle {
 	private static final Logger log = LoggerFactory.getLogger(DealGenerator.class);
 
 	/**
@@ -41,32 +47,38 @@ import jp.co.sony.csl.dcoes.apis.tools.web.api_handler.DealGeneration;
 	/**
 	 * Called during startup.
 	 * Opens HTTP service.
+	 * 
 	 * @param startFuture {@inheritDoc}
 	 * @throws Exception {@inheritDoc}
-	 * 起動時に呼び出される.
-	 * HTTP サービスを開く.
+	 *                   起動時に呼び出される.
+	 *                   HTTP サービスを開く.
 	 * @param startFuture {@inheritDoc}
 	 * @throws Exception {@inheritDoc}
 	 */
-	@Override public void start(Future<Void> startFuture) throws Exception {
+	@Override
+	public void start(Promise<Void> startPromise) throws Exception {
 		startHttpService_(resHttp -> {
 			if (resHttp.succeeded()) {
-				if (log.isTraceEnabled()) log.trace("started : " + deploymentID());
-				startFuture.complete();
+				if (log.isTraceEnabled())
+					log.trace("started : " + deploymentID());
+				startPromise.complete();
 			} else {
-				startFuture.fail(resHttp.cause());
+				startPromise.fail(resHttp.cause());
 			}
 		});
 	}
 
 	/**
 	 * Called when stopped.
+	 * 
 	 * @throws Exception {@inheritDoc}
-	 * 停止時に呼び出される.
+	 *                   停止時に呼び出される.
 	 * @throws Exception {@inheritDoc}
 	 */
-	@Override public void stop() throws Exception {
-		if (log.isTraceEnabled()) log.trace("stopped : " + deploymentID());
+	@Override
+	public void stop() throws Exception {
+		if (log.isTraceEnabled())
+			log.trace("stopped : " + deploymentID());
 	}
 
 	////
@@ -75,26 +87,30 @@ import jp.co.sony.csl.dcoes.apis.tools.web.api_handler.DealGeneration;
 		Integer port = VertxConfig.config.getInteger(DEFAULT_PORT, "dealGenerator", "port");
 		vertx.createHttpServer().requestHandler(req -> {
 			req.exceptionHandler(t -> {
-				log.error("exceptionHandler : " + t);
-				req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500).end("exceptionHandler : " + t + '\n');
+				log.error("exceptionHandler", t);
+				req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500)
+						.end("exceptionHandler : " + t + '\n');
 			});
 			try {
 				if (req.path().equals("/deal")) {
 					handler_.handleRequest(vertx, req, log);
 				} else {
-					if (log.isWarnEnabled()) log.warn("not found : " + req.uri());
+					if (log.isWarnEnabled())
+						log.warn("not found : " + req.uri());
 					req.response().setStatusCode(404).end();
 				}
 			} catch (Exception e) {
-				log.error("exception : " + e);
-				req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500).end("exception : " + e + '\n');
+				log.error("exception", e);
+				req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500)
+						.end("exception : " + e + '\n');
 			}
 		}).listen(port, res -> {
 			if (res.succeeded()) {
-				if (log.isInfoEnabled()) log.info("deal generation http service started on port : " + port);
+				if (log.isInfoEnabled())
+					log.info("deal generation http service started on port : " + port);
 				completionHandler.handle(Future.succeededFuture());
 			} else {
-				log.error(res.cause());
+				log.error("error", res.cause());
 				completionHandler.handle(Future.failedFuture(res.cause()));
 			}
 		});

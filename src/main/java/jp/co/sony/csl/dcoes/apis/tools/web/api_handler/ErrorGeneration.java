@@ -1,8 +1,9 @@
 package jp.co.sony.csl.dcoes.apis.tools.web.api_handler;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.logging.Logger;
+import org.slf4j.Logger;
 import jp.co.sony.csl.dcoes.apis.common.Error;
 import jp.co.sony.csl.dcoes.apis.tools.web.ApiServer;
 
@@ -11,11 +12,12 @@ import jp.co.sony.csl.dcoes.apis.tools.web.ApiServer;
  * Used in {@link ApiServer}.
  * Provides the following API.
  * - /error : Intentionally generates an error
+ * 
  * @author OES Project
- * 外部からエラーを投入するための Web API を提供する.
- * {@link ApiServer} で使用される.
- * 以下の API を提供する.
- * - /error : 意図的にエラーを発生させる
+ *         外部からエラーを投入するための Web API を提供する.
+ *         {@link ApiServer} で使用される.
+ *         以下の API を提供する.
+ *         - /error : 意図的にエラーを発生させる
  * @author OES Project
  */
 public class ErrorGeneration implements ApiServer.ApiHandler {
@@ -26,13 +28,15 @@ public class ErrorGeneration implements ApiServer.ApiHandler {
 	 * {@inheritDoc}
 	 * パスが {@code "/error"} で始まっていれば処理する.
 	 */
-	@Override public boolean canHandleRequest(HttpServerRequest req) {
+	@Override
+	public boolean canHandleRequest(HttpServerRequest req) {
 		return (req.path().startsWith("/error"));
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * If the request method is POST, generates and throws an error with the attributes below.
+	 * If the request method is POST, generates and throws an error with the
+	 * attributes below.
 	 * - unitId : ID of unit that generated the error
 	 * - category : Error category
 	 * - extent : Extent of error
@@ -48,9 +52,9 @@ public class ErrorGeneration implements ApiServer.ApiHandler {
 	 * - message : エラーメッセージ
 	 * リクエストのメソッドが GET なら入力フォームを出力する.
 	 */
-	@Override public void handleRequest(Vertx vertx, HttpServerRequest req, Logger log) {
-		switch (req.method()) {
-		case POST:
+	@Override
+	public void handleRequest(Vertx vertx, HttpServerRequest req, Logger log) {
+		if (req.method() == HttpMethod.POST) {
 			req.setExpectMultipart(true);
 			req.endHandler(v -> {
 				try {
@@ -59,18 +63,19 @@ public class ErrorGeneration implements ApiServer.ApiHandler {
 					Error.Extent extent = Error.extent(req.getFormAttribute("extent").toUpperCase());
 					Error.Level level = Error.level(req.getFormAttribute("level").toUpperCase());
 					String message = req.getFormAttribute("message");
-					String msg = "publishing error : " + Error.logMessage(category, extent, level, message, unitId, null) + " ...";
-					if (log.isInfoEnabled()) log.info(msg);
+					String msg = "publishing error : "
+							+ Error.logMessage(category, extent, level, message, unitId, null) + " ...";
+					if (log.isInfoEnabled())
+						log.info(msg);
 					Error.report(vertx, unitId, category, extent, level, message);
 					req.response().setChunked(true).putHeader("content-type", "text/plain").end(msg + '\n');
 				} catch (Exception e) {
-					log.error("exception : " + e);
-					req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500).end("exception : " + e + '\n');
+					log.error("exception", e);
+					req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500)
+							.end("exception : " + e + '\n');
 				}
 			});
-			break;
-		case GET:
-			req.response().setChunked(true).putHeader("content-type", "text/html").write(""
+			req.response().setChunked(true).putHeader("content-type", "text/html").end(""
 					+ "<html>"
 					+ "<head></head>"
 					+ "<body>"
@@ -95,13 +100,11 @@ public class ErrorGeneration implements ApiServer.ApiHandler {
 					+ "<input type=\"submit\" value=\"Generate\">"
 					+ "</form>"
 					+ "</body>"
-					+ "</html>"
-					).end();
-			break;
-		default:
-			if (log.isWarnEnabled()) log.warn("method " + req.method() + " not allowed");
+					+ "</html>");
+		} else {
+			if (log.isWarnEnabled())
+				log.warn("method " + req.method() + " not allowed");
 			req.response().setStatusCode(405).end();
-			break;
 		}
 	}
 

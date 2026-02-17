@@ -1,23 +1,25 @@
 package jp.co.sony.csl.dcoes.apis.tools.web.api_handler;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
+import org.slf4j.Logger;
 import jp.co.sony.csl.dcoes.apis.common.ServiceAddress;
 import jp.co.sony.csl.dcoes.apis.common.util.vertx.JsonObjectUtil;
 import jp.co.sony.csl.dcoes.apis.tools.web.ApiServer;
 
 /**
- * Provides Web API to deliver Power Sharing information from the outside. 
+ * Provides Web API to deliver Power Sharing information from the outside.
  * Used in {@link ApiServer}.
  * The following API is provided.
  * - /deal : Delivers Power Sharing
+ * 
  * @author OES Project
- * 外部から融通情報を投入するための Web API を提供する.
- * {@link ApiServer} で使用される.
- * 以下の API を提供する.
- * - /deal : 融通を投入する
+ *         外部から融通情報を投入するための Web API を提供する.
+ *         {@link ApiServer} で使用される.
+ *         以下の API を提供する.
+ *         - /deal : 融通を投入する
  * @author OES Project
  */
 public class DealGeneration implements ApiServer.ApiHandler {
@@ -30,21 +32,25 @@ public class DealGeneration implements ApiServer.ApiHandler {
 	 * {@inheritDoc}
 	 * パスが {@code "/deal"} で始まっていれば処理する.
 	 */
-	@Override public boolean canHandleRequest(HttpServerRequest req) {
+	@Override
+	public boolean canHandleRequest(HttpServerRequest req) {
 		return (req.path().startsWith("/deal"));
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * If the request method is POST, generates {@link JsonObject} from the form's {@code "json"} value and delivers it to the Power Sharing registration service.
+	 * If the request method is POST, generates {@link JsonObject} from the form's
+	 * {@code "json"} value and delivers it to the Power Sharing registration
+	 * service.
 	 * If the request method is GET, outputs the input form.
 	 * {@inheritDoc}
-	 * リクエストのメソッドが POST ならフォームの {@code "json"} 値から {@link JsonObject} を生成し融通登録サービスに投げる.
+	 * リクエストのメソッドが POST ならフォームの {@code "json"} 値から {@link JsonObject}
+	 * を生成し融通登録サービスに投げる.
 	 * リクエストのメソッドが GET なら入力フォームを出力する.
 	 */
-	@Override public void handleRequest(Vertx vertx, HttpServerRequest req, Logger log) {
-		switch (req.method()) {
-		case POST:
+	@Override
+	public void handleRequest(Vertx vertx, HttpServerRequest req, Logger log) {
+		if (req.method() == HttpMethod.POST) {
 			req.setExpectMultipart(true);
 			req.endHandler(v -> {
 				try {
@@ -53,23 +59,26 @@ public class DealGeneration implements ApiServer.ApiHandler {
 						if (res.succeeded()) {
 							JsonObject deal = res.result();
 							String msg = "requesting deal creation : " + deal + " ...";
-							if (log.isInfoEnabled()) log.info(msg);
+							if (log.isInfoEnabled())
+								log.info(msg);
 							vertx.eventBus().send(ServiceAddress.Mediator.dealCreation(), deal);
 							req.response().setChunked(true).putHeader("content-type", "text/plain").end(msg + '\n');
 						} else {
 							String msg = "illegal json format : " + res.cause();
-							if (log.isWarnEnabled()) log.warn(msg);
-							req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500).end(msg + '\n');
+							if (log.isWarnEnabled())
+								log.warn(msg);
+							req.response().setChunked(true).putHeader("content-type", "text/plain")
+									.setStatusCode(500).end(msg + '\n');
 						}
 					});
 				} catch (Exception e) {
-					log.error("exception : " + e);
-					req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500).end("exception : " + e + '\n');
+					log.error("exception", e);
+					req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500)
+							.end("exception : " + e + '\n');
 				}
 			});
-			break;
-		case GET:
-			req.response().setChunked(true).putHeader("content-type", "text/html").write(""
+		} else if (req.method() == HttpMethod.GET) {
+			req.response().setChunked(true).putHeader("content-type", "text/html").end(""
 					+ "<html>"
 					+ "<head></head>"
 					+ "<body>"
@@ -78,13 +87,11 @@ public class DealGeneration implements ApiServer.ApiHandler {
 					+ "<input type=\"submit\" value=\"Generate\">"
 					+ "</form>"
 					+ "</body>"
-					+ "</html>"
-					).end();
-			break;
-		default:
-			if (log.isWarnEnabled()) log.warn("method " + req.method() + " not allowed");
+					+ "</html>");
+		} else {
+			if (log.isWarnEnabled())
+				log.warn("method " + req.method() + " not allowed");
 			req.response().setStatusCode(405).end();
-			break;
 		}
 	}
 
