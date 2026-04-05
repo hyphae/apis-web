@@ -121,7 +121,7 @@ public void getShouldRetutnHTML(){
 
 // Should return 500 for invalid Json
 @Test
-public void shouldReturn500ForInvalidJson() {
+public void postShouldReturn500ForInvalidJson() {
     // Arrange
     when(req.method()).thenReturn(HttpMethod.POST);
     when(req.response()).thenReturn(res);
@@ -143,7 +143,7 @@ public void shouldReturn500ForInvalidJson() {
 
 // Should send to eventBus on valid json
  @Test
-    public void shouldSendToEventBusForValidJson() {
+    public void postShouldSendToEventBusForValidJson() {
         when(req.method()).thenReturn(HttpMethod.POST);
         when(req.response()).thenReturn(res);
         when(res.setChunked(true)).thenReturn(res);
@@ -160,9 +160,41 @@ public void shouldReturn500ForInvalidJson() {
 
         verify(eventBus).send(eq(ServiceAddress.Mediator.dealCreation()), any(JsonObject.class));
     }
+
+// exceptions should throw 500
+@Test public void
+postException_ShouldReturn500(){
+    // Arrange
+    when(req.method()).thenReturn(HttpMethod.POST);
+    when(req.response()).thenReturn(res);
+    when(res.setChunked(true)).thenReturn(res);
+    when(res.putHeader(anyString(), anyString())).thenReturn(res);	
+    when(req.setExpectMultipart(true)).thenReturn(req);
+
+
+    // Make getFormAttribute throw an exception
+    when(req.getFormAttribute(anyString())).thenThrow(new RuntimeException());
+
+    // Capture the endHandler
+    ArgumentCaptor<Handler> endHandlerCaptor = ArgumentCaptor.forClass(Handler.class);
+
+    // Act
+    dealGeneration.handleRequest(vertx, req, log);
+    verify(req).endHandler(endHandlerCaptor.capture());
+    
+    Handler capturedHandler = endHandlerCaptor.getValue();
+    capturedHandler.handle(null);
+
+
+    // Assert
+    verify(res).setStatusCode(500);
+    verify(res).setChunked(true);
+    verify(res).putHeader(anyString(),anyString());
+    verify(res).end(contains("exception"));
+    }
+
+
 }
-
-
 
 
 
