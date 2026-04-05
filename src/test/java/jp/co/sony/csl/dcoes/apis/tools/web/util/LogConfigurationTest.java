@@ -28,8 +28,6 @@ public class LogConfigurationTest{
     @Mock
     private Vertx vertx;
 
-
-
     @Mock
     private HttpServerRequest req;
 
@@ -115,7 +113,7 @@ public void getShouldRetutnHTML(){
     assertTrue(html.contains("<html>"));
 }
 
-
+// post with multicast handler should publish to eventbus
 @Test public void postWithMulticastHandler_ShouldPublishToEventBus() {
     // Arrange
     when(vertx.eventBus()).thenReturn(eventBus); 
@@ -148,6 +146,7 @@ public void getShouldRetutnHTML(){
 
 }
 
+// post without multicast handler should return 500
 @Test public void postWithoutMulticastHandler_ShouldReturn500() {
     // Arrange
     when(vertx.eventBus()).thenReturn(eventBus); 
@@ -175,8 +174,9 @@ public void getShouldRetutnHTML(){
     verify(res).end(contains("exception"));
 }
 
+// exception should throw 500
 @Test public void
-postThrowinfException_ShouldReturn500(){
+postException_ShouldReturn500(){
     // Arrange
     when(req.method()).thenReturn(HttpMethod.POST);
     when(req.response()).thenReturn(res);
@@ -202,28 +202,7 @@ postThrowinfException_ShouldReturn500(){
     // Assert
     verify(res).setStatusCode(500);
     verify(res).end(contains("unknown log handler"));
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
