@@ -9,7 +9,7 @@
 
   <groupId>jp.co.sony.csl.dcoes.apis</groupId>
   <artifactId>apis-web</artifactId>
-  <version>3.4.1</version>
+  <version>4.5.10</version>
 
   <name>APIS WEB</name>
 
@@ -18,11 +18,16 @@
       <dependency>
         <groupId>jp.co.sony.csl.dcoes.apis</groupId>
         <artifactId>apis-bom</artifactId>
-        <version>3.4.1</version>
+        <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-    </dependencies>
+      <dependency>
+        <groupId>jp.co.sony.csl.dcoes.apis</groupId>
+        <artifactId>apis-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>    
+  </dependencies>
   </dependencyManagement>
 
   <dependencies>
