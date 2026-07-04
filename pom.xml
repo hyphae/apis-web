@@ -22,12 +22,7 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>jp.co.sony.csl.dcoes.apis</groupId>
-        <artifactId>apis-common</artifactId>
-        <version>${project.version}</version>
-      </dependency>    
-  </dependencies>
+    </dependencies>
   </dependencyManagement>
 
   <dependencies>
@@ -54,12 +49,6 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>4.11.0</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -67,13 +56,7 @@
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.11.0</version>
-          <configuration>
-            <release>11</release>
-            <encoding>UTF-8</encoding>
-            <showWarnings>false</showWarnings>
-            <showDeprecation>false</showDeprecation>
-          </configuration>
+          <version>3.14.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
