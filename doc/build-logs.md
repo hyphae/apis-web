@@ -105,7 +105,7 @@ Windows doesn't use the `.sh` scripts directly (unless using Git Bash). To run i
    ```
 2. Run the Java command manually:
    ```powershell
-   java -Djava.net.preferIPv4Stack=true -Duser.timezone=Asia/Tokyo -Djava.util.logging.config.file=./logging.properties -Dvertx.hazelcast.config=.\cluster.xml -jar ..\target\apis-web-3.0.0-fat.jar run jp.co.sony.csl.dcoes.apis.tools.web.util.Starter --conf .\config.json --cluster --cluster-host 127.0.0.1
+   java -Djava.net.preferIPv4Stack=true -Duser.timezone=Asia/Tokyo -Dlogback.configurationFile=./logback.xml -Dvertx.hazelcast.config=.\cluster.xml -jar ..\target\apis-web-3.0.0-fat.jar run jp.co.sony.csl.dcoes.apis.tools.web.util.Starter --conf .\config.json --cluster --cluster-host 127.0.0.1
    ```
 
 ### Logging Commands
@@ -128,7 +128,7 @@ If `mvn package` fails, capture the full stack trace:
 - **Windows**: `mvn package | Out-File -FilePath build.log`
 
 ### Runtime Logs
-`apis-web` is configured via `logging.properties` to generate:
+`apis-web` is configured via `logback.xml` to generate:
 - `0.0.log`: General info and debug logs.
 - `0.0.err`: Warning and error logs.
 The `%u` in the filename expands to a unique number if multiple instances are running.
