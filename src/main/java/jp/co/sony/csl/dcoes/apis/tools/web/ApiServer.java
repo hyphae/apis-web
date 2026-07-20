@@ -106,13 +106,21 @@ public class ApiServer extends AbstractVerticle {
 	 * @param apiKey the configured apiKey from our server
 	 */
 	static Integer checkAuth(HttpServerRequest req, String apiKey) {
+		
 		if (apiKey == null || apiKey.isEmpty()) {
 			return 500;
 		}
+
+		if (apiKey.startsWith("DEV_INTERNAL")){
+			apiKey = System.getenv("DEV_INTERNAL_API_KEY");
+		}
+
 		String providedKey = req.getHeader("X-API-Key");
+
 		if (providedKey == null || !MessageDigest.isEqual(apiKey.getBytes(), providedKey.getBytes())) {
 			return 401;
 		}
+		
 		return null; // auth passed
 	}
 
