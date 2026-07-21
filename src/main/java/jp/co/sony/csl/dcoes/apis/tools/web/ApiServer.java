@@ -113,6 +113,9 @@ public class ApiServer extends AbstractVerticle {
 
 		if (apiKey.startsWith("DEV_INTERNAL")){
 			apiKey = System.getenv("DEV_INTERNAL_API_KEY");
+			if (apiKey == null || apiKey.isEmpty()) {
+			return 500;
+			}
 		}
 
 		String providedKey = req.getHeader("X-API-Key");
