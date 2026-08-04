@@ -739,36 +739,30 @@ Certificate used for applying SSL to the Event Bus.
     
 ## **8.1. Log Level**
 
-SLF4J with Logback is used for log output. Logging is divided into the seven levels described below. APIS logging does not output the “CONFIG” and “FINER” levels. The destinations of the APIS action log, log levels to be saved, maximum log size, maximum number of records to be saved, etc. are set in the logback.xml file.
+SLF4J with Logback is used for log output. APIS uses the native Logback levels ERROR, WARN, INFO, DEBUG, and TRACE. The destinations of the APIS action log, log levels to be saved, maximum log size, and maximum number of records to be saved, etc. are set in the logback.xml file.
 
 \[APIS Log Level\]
 
-1. SEVERE  
-   →Level used when an error occurs during execution.  
-   When a log of this level is outputted, it is considered that some sort of problem has occurred.  
-   \<Example\> When there is access to a Web API (URL) that has not been provided.
+1. ERROR
+   →Level used when an error occurs during execution.
+   When a log of this level is outputted, it is considered that some sort of problem has occurred.
+   <Example> When there is access to a Web API (URL) that has not been provided.
 
-1. WARNING  
-   →Level used to issue a warning for unexpected behavior during execution that is not an error.  
-   \<Example\> Hardware information or other information in a node obtained from Grid Master is blank.
+2. WARN
+   →Level used to issue a warning for unexpected behavior during execution that is not an error.
+   <Example> Hardware information or other information in a node obtained from Grid Master is blank.
 
-1. INFO  
-   →Level used for outputting normal system information during execution. For apis-web, this level is outputted after processing a significant event.  
-    \<Example\> API-provided port, etc.
+3. INFO
+   →Level used for outputting normal system information during execution. For apis-web, this level is outputted after processing a significant event.
+    <Example> API-provided port, etc.
 
-1. CONFIG  
-   →This log level outputs information related to settings. This level is not outputted in the log for apis-web.
+4. DEBUG
+   →This level is used for outputting normal behavior information during execution.
+   <Example> Number of acquisitions of node information from Grid Master
 
-1. FINE  
-   →This level is used for outputting normal behavior information during execution.  
-   \<Example\> Number of acquisitions of node information from Grid Master
-
-1. FINER  
+5. TRACE
    →Starting and ending information for particular processes. This level is not outputted in the log for apis-web.
-
-1. FINEST  
-   →This level is used to output normal behavior information during execution.  
-   \<Example\> When a Vert.x Verticle is started.
+   <Example> When a Vert.x Verticle is started.
 
 <br>
 
