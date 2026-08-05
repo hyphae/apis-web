@@ -13,6 +13,7 @@ import jp.co.sony.csl.dcoes.apis.common.util.vertx.VertxConfig;
 import jp.co.sony.csl.dcoes.apis.tools.web.api_handler.DealGeneration;
 import jp.co.sony.csl.dcoes.apis.tools.web.api_handler.ErrorGeneration;
 import jp.co.sony.csl.dcoes.apis.tools.web.api_handler.LogConfiguration;
+import java.security.MessageDigest;
 
 /**
  * These Verticles provide various Web API for controlling APIS from the
@@ -69,6 +70,7 @@ public class ApiServer extends AbstractVerticle {
 	 * @param startFuture {@inheritDoc}
 	 * @throws Exception {@inheritDoc}
 	 */
+	
 	@Override
 	public void start(Promise<Void> startPromise) throws Exception {
 		startHttpService_(resHttp -> {
@@ -95,6 +97,39 @@ public class ApiServer extends AbstractVerticle {
 			log.trace("stopped : " + deploymentID());
 	}
 
+
+	/**
+	 * Starts authenticates request to our server.
+	 * Gets providedKey from request and authenticates, by matching with our servers apiKey.
+	 * 
+	 * @param req the request object hitting our server
+	 * @param apiKey the configured apiKey from our server
+	 */
+	static Integer checkAuth(HttpServerRequest req, String apiKey) {
+		
+		if (apiKey == null || apiKey.isEmpty()) {
+			return 500;
+		}
+
+		if (apiKey.startsWith("DEV_INTERNAL")){
+			apiKey = System.getenv("DEV_INTERNAL_API_KEY");
+			if (apiKey == null || apiKey.isEmpty()) {
+			return 500;
+			}
+		}
+
+		String providedKey = req.getHeader("X-API-Key");
+
+		if (providedKey == null || !MessageDigest.isEqual(apiKey.getBytes(), providedKey.getBytes())) {
+			return 401;
+		}
+		
+		return null; // auth passed
+	}
+
+
+
+
 	////
 
 	/**
@@ -110,12 +145,27 @@ public class ApiServer extends AbstractVerticle {
 	 */
 	private void startHttpService_(Handler<AsyncResult<Void>> completionHandler) {
 		Integer port = VertxConfig.config.getInteger(DEFAULT_PORT, "apiServer", "port");
+		// fetches the config api-key
+		String apiKey = VertxConfig.apiServerApiKey();
+
+
 		vertx.createHttpServer().requestHandler(req -> {
 			req.exceptionHandler(t -> {
 				log.error("exceptionHandler", t);
 				req.response().setChunked(true).putHeader("content-type", "text/plain").setStatusCode(500)
 						.end("exceptionHandler : " + t + '\n');
 			});
+
+
+			// --- start auth check ---
+			Integer authFail = checkAuth(req, apiKey);
+			if (authFail != null) {
+				req.response().setStatusCode(authFail).end(authFail == 500 ? "server misconfigured\n" : "unauthorized\n");
+				return;
+			}
+			// --- end auth check ---
+
+
 			try {
 				for (ApiHandler apiHandler : apiHandlers_) {
 					if (apiHandler.canHandleRequest(req)) {

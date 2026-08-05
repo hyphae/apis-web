@@ -19,7 +19,8 @@
 		"port" : 43900
 	},
 	"apiServer" : {
-		"port" : 9999
+		"port" : 9999,
+		"apiKey":"DEV_INTERNAL_API_KEY"
 	},
 
 	"watchdog" : {
