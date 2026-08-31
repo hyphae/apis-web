@@ -50,7 +50,7 @@
 
 &emsp;[7.2.cluster.xml](#anchor7-2)
 
-&emsp;[7.3.logging.properties](#anchor7-3)
+&emsp;[7.3.logback.xml](#anchor7-3)
 
 &emsp;[7.4.start.sh](#anchor7-4)
 
@@ -198,7 +198,7 @@ Error GenerationのWeb APIを実行するとブラウザ上に下記のWindowが
 
 <a id="anchor4-4-3"></a>
 **4.4.3.Log Configurator**  
-コミュニケーションラインに出力されるapis-mainのUDP Logは情報漏洩や通信のトラフィック負荷を考慮してapis-mainのlogging.properties設定で出力Levelを制限されているか、出力がOFFとなっている。Debugの目的で一時的にapis-mainのUDP Logの出力Levelを変更する場合にはこの機能を使うことで動的に変更することができる。(この機能の効果は一時的でapis-main再起動後のUDP出力Levelはapis-main自身のlogging.properties設定に従う。)
+コミュニケーションラインに出力されるapis-mainのUDP Logは情報漏洩や通信のトラフィック負荷を考慮してapis-mainのlogback.xml設定で出力Levelを制限されているか、出力がOFFとなっている。Debugの目的で一時的にapis-mainのUDP Logの出力Levelを変更する場合にはこの機能を使うことで動的に変更することができる。(この機能の効果は一時的でapis-main再起動後のUDP出力Levelはapis-main自身のlogback.xml設定に従う。)
 
 <img src="media/media/image9.png" style="width:2.85in;height:0.41003in" />
 
@@ -323,10 +323,10 @@ xml形式のファイルでHazelcastがクラスタを構築する際に必要�
 暗号化しcluster.xml.encrypted として保存される。
 
 <a id="anchor7-3"></a>
-**7.3.logging.properties**
+**7.3.logback.xml**
 ----------------------
 
-Javaの標準APIであるjava.util.loggingのLogの出力に関する設定(Logファイルの保存先、Log の保存容量、Log Levelの設定等)が記述されているファイル。
+LogbackのLog出力に関する設定(Logファイルの保存先、Log の保存容量、Log Levelの設定等)が記述されているファイル。
 
 <a id="anchor7-4"></a>
 **7.4.start.sh**
@@ -336,15 +336,15 @@ apis-webを起動させるスクリプトファイル。OS起動時の自動実�
 
 以下にstart.sh内でのapis-webを起動させるコマンドを示す。
 
-java -Djava.net.preferIPv4Stack=true -Duser.timezone=Asia/Tokyo -Djava.util.logging.config.file=./logging.properties -jar ./apis-web-2.23.0-a01-fat.jar -conf ./config.json -cp ./ -cluster -cluster-host 127.0.0.1 &
+java -Djava.net.preferIPv4Stack=true -Duser.timezone=Asia/Tokyo -Dlogback.configurationFile=./logback.xml -jar ./apis-web-2.23.0-a01-fat.jar -conf ./config.json -cp ./ -cluster -cluster-host 127.0.0.1 &
 
 “java”の後の引き数の意味を以下に説明する。    
 &emsp;-Djava.net.preferIPv4Stack=true  
 &emsp;&emsp;IPv4アドレスにバインドして起動するオプション。  
 &emsp;-Duser.timezone=Asia/Tokyo  
 &emsp;&emsp;Timezone設定。  
-&emsp;-Djava.util.logging.config.file=./logging.properties  
-&emsp;&emsp;Log構成ファイルを指定するオプション。  
+&emsp;-Dlogback.configurationFile=./logback.xml  
+&emsp;&emsp;Logback構成ファイルを指定するオプション。  
 &emsp;-jar ./apis-web-2.23.0-a01-fat.jar  
 &emsp;&emsp;JARファイルの中にカプセル化されたプログラムの実行を指定するオプション。  
 &emsp;-conf ./config.json  
@@ -382,16 +382,16 @@ Event BusのSSL化に使われる証明書である。
 **8.1.Log Level**
 -------------
 
-Log出力にはJava標準APIのjava.util.loggingを使っており以下の7つのLevelに分類されている。APISとしては”CONFIG”, “FINER”のLevelは使用しない。これらのAPISの動作Logはlogging.propertiesファイルに記載することでLogファイルの保存先、保存するLog Level、最大Logサイズ、最大保存Log数等の設定を行っている。
+Log出力にはSLF4J/Logbackを使っており、APISではLogbackの標準LevelであるERROR, WARN, INFO, DEBUG, TRACEを使う。これらのAPISの動作Logはlogback.xmlファイルに記載することでLogファイルの保存先、保存するLog Level、最大Logサイズ、最大保存Log数等の設定を行っている。
 
-\[java.util.logging Log Level\]
+\[Logback Log Level\]
 
-1. SEVERE  
+1. ERROR  
 実行中にErrorが発生した場合に使われるLevelである。  
 このLevelのLogが出力された場合には何等かの不具合が発生したと考えられる。  
 提供していないWeb API(URL)へのAccessがあった場合等。
 
-2. WARNING    
+2. WARN    
 実行中にErrorではないが期待された動作でないため警告として知らせる目的で使われるLevelである。  
 Grid Masterから取得した各ノードのハードウェア情報等が空の場合。  
 
@@ -399,25 +399,19 @@ Grid Masterから取得した各ノードのハードウェア情報等が空の
 実行中の正常系の情報を出力する際に用いられるLevelで、apis-webでは特に動作として重要なイベント処理を行った際に使われる。  
 API提供Port等。  
 
-4. CONFIG  
-設定に関するLog Levelであるがapis-webとしてはこのLevelの出力は行わない。    
-
-5. FINE  
+4. DEBUG  
 実行中の正常系の通常動作情報を出力する際に用いられるLevelである。  
 Grid Masterから取得した各ノードのハードウェア情報の取得件数等。  
 
-6. FINER  
+5. TRACE  
 特定の処理についての開始及び終了の情報であるがapis-webとしてはこのLevelの出力は行わない。  
-
-7. FINEST  
-実行中の正常系の通常動作情報を出力する際に用いられるLevelである。  
 例&gt; Vert.xのVerticle起動時等。  
 
 <a id="anchor8-2"></a>
 **8.2.APIS動作Log出力先**
 ---------------------
 
-apis-webの動作LogはUDP、Console、ファイルの3つの出力先がある。logging.propertiesの設定でそれぞれの出力の有無や前頁で述べた出力Levelの制限をかけることができる。UDPはコミュニケーションラインに出力されるため情報漏洩や通信のトラフィックを考慮して設定し、ファイルへの出力は不揮発性メモリの容量を考慮して設定する。
+apis-webの動作LogはUDP、Console、ファイルの3つの出力先がある。logback.xmlの設定でそれぞれの出力の有無や前頁で述べた出力Levelの制限をかけることができる。UDPはコミュニケーションラインに出力されるため情報漏洩や通信のトラフィックを考慮して設定し、ファイルへの出力は不揮発性メモリの容量を考慮して設定する。
 
 <img src="media/media/image10.png" style="width:4.61667in;height:3.05833in" />
 
@@ -504,7 +498,7 @@ Web APIによって取得できる情報が、個人情報に該当するかはa
   [**7.** **設定ファイルについて** 16]: #設定ファイルについて
   [**7.1.** **config.json** 16]: #config.json
   [**7.2.** **cluster.xml** 17]: #cluster.xml
-  [**7.3.** **logging.properties** 17]: #logging.properties
+  [**7.3.** **logback.xml** 17]: #logback.xml
   [**7.4.** **start.sh** 17]: #start.sh
   [**7.5.** **stop-kill.sh** 18]: #stop-kill.sh
   [**7.6.** **key.pem** 18]: #key.pem

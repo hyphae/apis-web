@@ -27,7 +27,7 @@
 - [**7. Configuration Files**](#7-configuration-files)
   - [**7.1. config.json**](#71-configjson)
   - [**7.2. cluster.xml**](#72-clusterxml)
-  - [**7.3. logging.properties**](#73-loggingproperties)
+   - [**7.3. logback.xml**](#73-logbackxml)
   - [**7.4. start.sh**](#74-startsh)
   - [**7.5. stop-kill.sh**](#75-stop-killsh)
   - [**7.6. key.pem**](#76-keypem)
@@ -168,7 +168,7 @@ When the Error Generation Web API is executed, the window below opens in the bro
 
 ### **4.4.3. Log Configurator**
 
-The output of apis-main’s UDP log, which is outputted to the communication line, is turned off or its level of output is restricted based on considerations of the possibility of data breaches and the amount of data traffic. Output settings are configured in apis-main’s logging.properties file. If you wish to temporarily change the UDP log output level for debugging purposes, you can use the Log Configurator function. (The effects of this function are temporary. The output level of UDP log follows apis-main’s logging.properties file after apis-main is restarted.)
+The output of apis-main’s UDP log, which is outputted to the communication line, is turned off or its level of output is restricted based on considerations of the possibility of data breaches and the amount of data traffic. Output settings are configured in apis-main’s logback.xml file. If you wish to temporarily change the UDP log output level for debugging purposes, you can use the Log Configurator function. (The effects of this function are temporary. The output level of UDP log follows apis-main’s logback.xml file after apis-main is restarted.)
 
 ![](media/media/image6.png)
 
@@ -676,9 +676,9 @@ Encrypted and saved as cluster.xml.encrypted.
 
 <br>
 
-## **7.3. logging.properties**
+## **7.3. logback.xml**
 
-File containing settings related to the output of Java’s standard logging API java.util.logging (destination of log file, storage capacity of log file, log level configuration, etc.).
+File containing settings related to Logback output (destination of log file, storage capacity of log file, log level configuration, etc.).
 
 <br>
 
@@ -688,7 +688,7 @@ Script file for starting up apis-web. It is automatically run when the operating
 
 The command to start apis-web in start.sh is as follows:
 
-> java -Djava.net.preferIPv4Stack=true -Duser.timezone=Asia/Tokyo -Djava.util.logging.config.file=./logging.properties -jar ./apis-web-2.23.0-a01-fat.jar -conf ./config.json -cp ./ -cluster -cluster-host 192.168.0.1 &
+> java -Djava.net.preferIPv4Stack=true -Duser.timezone=Asia/Tokyo -Dlogback.configurationFile=./logback.xml -jar ./apis-web-2.23.0-a01-fat.jar -conf ./config.json -cp ./ -cluster -cluster-host 192.168.0.1 &
 
 The arguments after “java” are described here.
 
@@ -698,8 +698,8 @@ The arguments after “java” are described here.
 * Duser.timezone=Asia/Tokyo  
 -> Time zone setting
 
-* Djava.util.logging.config.file=./logging.properties  
--> Option for specifying the logging configuration file.
+* Dlogback.configurationFile=./logback.xml  
+-> Option for specifying the Logback configuration file.
 
 * jar ./apis-web-2.23.0-a01-fat.jar  
 -> Option for specifying the execution of program encapsulated in the JAR file.
@@ -739,42 +739,36 @@ Certificate used for applying SSL to the Event Bus.
     
 ## **8.1. Log Level**
 
-The standard Java API java.util.logging is used for log output. Logging is divided into the seven levels described below. APIS logging does not output the “CONFIG” and “FINER” levels. The destinations of the APIS action log, log levels to be saved, maximum log size, maximum number of records to be saved, etc. are set in the logging.properties file.
+SLF4J with Logback is used for log output. APIS uses the native Logback levels ERROR, WARN, INFO, DEBUG, and TRACE. The destinations of the APIS action log, log levels to be saved, maximum log size, and maximum number of records to be saved, etc. are set in the logback.xml file.
 
-\[java.util.logging Log Level\]
+\[APIS Log Level\]
 
-1. SEVERE  
-   →Level used when an error occurs during execution.  
-   When a log of this level is outputted, it is considered that some sort of problem has occurred.  
-   \<Example\> When there is access to a Web API (URL) that has not been provided.
+1. ERROR
+   →Level used when an error occurs during execution.
+   When a log of this level is outputted, it is considered that some sort of problem has occurred.
+   <Example> When there is access to a Web API (URL) that has not been provided.
 
-1. WARNING  
-   →Level used to issue a warning for unexpected behavior during execution that is not an error.  
-   \<Example\> Hardware information or other information in a node obtained from Grid Master is blank.
+2. WARN
+   →Level used to issue a warning for unexpected behavior during execution that is not an error.
+   <Example> Hardware information or other information in a node obtained from Grid Master is blank.
 
-1. INFO  
-   →Level used for outputting normal system information during execution. For apis-web, this level is outputted after processing a significant event.  
-    \<Example\> API-provided port, etc.
+3. INFO
+   →Level used for outputting normal system information during execution. For apis-web, this level is outputted after processing a significant event.
+    <Example> API-provided port, etc.
 
-1. CONFIG  
-   →This log level outputs information related to settings. This level is not outputted in the log for apis-web.
+4. DEBUG
+   →This level is used for outputting normal behavior information during execution.
+   <Example> Number of acquisitions of node information from Grid Master
 
-1. FINE  
-   →This level is used for outputting normal behavior information during execution.  
-   \<Example\> Number of acquisitions of node information from Grid Master
-
-1. FINER  
+5. TRACE
    →Starting and ending information for particular processes. This level is not outputted in the log for apis-web.
-
-1. FINEST  
-   →This level is used to output normal behavior information during execution.  
-   \<Example\> When a Vert.x Verticle is started.
+   <Example> When a Vert.x Verticle is started.
 
 <br>
 
 ## **8.2. Output Destination of APIS Action Log**
 
-The apis-web action log has three output destinations: UDP, console, and file. Enabling/disabling each output and applying restrictions on the output level as explained in the previous section can be set in logging.properties. Because UDP is outputted on the communication line, set the log after taking into consideration security against data breaches and the amount of data traffic. Set file output after taking into consideration the amount of non-volatile memory available.
+The apis-web action log has three output destinations: UDP, console, and file. Enabling/disabling each output and applying restrictions on the output level as explained in the previous section can be set in logback.xml. Because UDP is outputted on the communication line, set the log after taking into consideration security against data breaches and the amount of data traffic. Set file output after taking into consideration the amount of non-volatile memory available.
 
 ![](media/media/image7.png)
 
